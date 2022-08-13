@@ -1,3 +1,4 @@
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,8 +32,25 @@ public class UserController
         _authService = authService;
         _roleManager = roleManager;
     }
-    
-    public async Task<string> GetAuthToken(UserModels.GetUserToken model)
+
+    public async Task<IActionResult> SignUp(UserModels.SignUp model)
+    {
+        var user = new User()
+        {
+            Email = model.Email,
+            UserName = model.Email,
+            FirstName = model.FirstName,
+            LastName = model.LastName
+        };
+        var result = await _userManager.CreateAsync(user, model.Password);
+        if (result.Succeeded)
+        {
+            return new OkResult();
+        }
+
+        return new BadRequestResult();
+    }
+    public async Task<string> SignIn(UserModels.GetUserToken model)
     {
         var user = await _userRepository.GetUserById(model.Username); 
         var result = await _signInManager.PasswordSignInAsync(user, model.Password,  true,  false);
